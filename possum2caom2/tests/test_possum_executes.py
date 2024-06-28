@@ -258,7 +258,7 @@ def test_state_runner_reporter(test_config, tmp_path, change_test_dir):
     test_result = test_subject.run()
     assert test_result is not None, 'expect a result'
     assert test_result == 0, 'happy path'
-    assert test_organizer.mock_calls == [call.choose], 'organizer'
+    assert test_organizer.mock_calls == [], 'organizer'
     assert test_data_source.initialize_start_dt.called, 'initialize_start_dt'
     assert test_data_source.initialize_start_dt.call_count == 1, 'initialize_start_dt count'
     assert test_data_source.initialize_end_dt.called, 'initialize_end_dt'
@@ -291,6 +291,8 @@ def test_state_runner_nominal_multiple_files(
     tmp_path,
     change_test_dir,
 ):
+    import logging
+    # logging.getLogger().setLevel(logging.INFO)
     # test that three file get processed properly, and get left behind
     with open(f'{test_data_dir}/storage_mock/rclone_lsjson.json') as f:
         exec_cmd_info_mock.return_value = f.read()
@@ -344,9 +346,7 @@ def test_state_runner_nominal_multiple_files(
     test_clients = Mock()
     test_clients.metadata_client.read.return_value = None
     test_observation = read_obs_from_file(f'{test_data_dir}/storage_mock/renaming_observation.xml')
-    test_clients.server_side_ctor_client.read.side_effect = [
-        None, test_observation, None, test_observation, None, test_observation
-    ]
+    test_clients.server_side_ctor_client.read.side_effect = [test_observation, test_observation, test_observation]
     kwargs = {
         'clients': test_clients,
         'observable': test_observable,
@@ -370,23 +370,23 @@ def test_state_runner_nominal_multiple_files(
     test_result = test_subject.run()
     assert test_result is not None, 'expect a result'
     assert test_result == 0, 'happy path'
-    assert test_organizer.mock_calls == [call.choose], 'organizer'
+    assert test_organizer.mock_calls == [], 'organizer'
     assert test_clients.mock_calls == [
         call.data_client.put(f'{tmp_path}/{time_box_dir_name}', f'cadc:POSSUM/PSM_1368MHz_18asec_2031-5249_11073_i_v1.fits'),
         call.metadata_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
-        call.server_side_ctor_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
+        call.server_side_ctor_client.delete('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         call.server_side_ctor_client.create(ANY),
         call.server_side_ctor_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         call.metadata_client.create(ANY),
         call.data_client.put(f'{tmp_path}/{time_box_dir_name}', f'cadc:POSSUM/PSM_1367MHz_18asec_2013-5553_11261_i_v1.fits'),
         call.metadata_client.read('POSSUM', '1367MHz_18asec_2013-5553_11261_v1'),
-        call.server_side_ctor_client.read('POSSUM', '1367MHz_18asec_2013-5553_11261_v1'),
+        call.server_side_ctor_client.delete('POSSUM', '1367MHz_18asec_2013-5553_11261_v1'),
         call.server_side_ctor_client.create(ANY),
         call.server_side_ctor_client.read('POSSUM', '1367MHz_18asec_2013-5553_11261_v1'),
         call.metadata_client.create(ANY),
         call.data_client.put(f'{tmp_path}/{time_box_dir_name_2}', f'cadc:POSSUM/PSM_1368MHz_18asec_2031-5249_11073_q_v1.fits'),
         call.metadata_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
-        call.server_side_ctor_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
+        call.server_side_ctor_client.delete('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         call.server_side_ctor_client.create(ANY),
         call.server_side_ctor_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         call.metadata_client.create(ANY),
@@ -450,7 +450,7 @@ def test_state_runner_clean_up_when_storing_with_retry(
     test_clients = Mock()
     test_clients.metadata_client.read.side_effect = [CadcException, None]
     test_observation = read_obs_from_file(f'{test_data_dir}/storage_mock/renaming_observation.xml')
-    test_clients.server_side_ctor_client.read.side_effect = [None, test_observation]
+    test_clients.server_side_ctor_client.read.side_effect = [test_observation]
     kwargs = {
         'clients': test_clients,
         'observable': test_observable,
@@ -474,14 +474,14 @@ def test_state_runner_clean_up_when_storing_with_retry(
     test_result = test_subject.run()
     assert test_result is not None, 'expect a result'
     assert test_result == -1, 'happy path with a retry'
-    assert test_organizer.mock_calls == [call.choose], 'organizer'
+    assert test_organizer.mock_calls == [], 'organizer'
     assert test_clients.mock_calls == [
         call.data_client.put(f'{tmp_path}/{time_box_dir_name}', f'cadc:POSSUM/PSM_1368MHz_18asec_2031-5249_11073_q_v1.fits'),
         call.metadata_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         # because there's a retry
         call.data_client.put(f'{tmp_path}/{time_box_dir_name}', f'cadc:POSSUM/PSM_1368MHz_18asec_2031-5249_11073_q_v1.fits'),
         call.metadata_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
-        call.server_side_ctor_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
+        call.server_side_ctor_client.delete('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         call.server_side_ctor_client.create(ANY),
         call.server_side_ctor_client.read('POSSUM', '1368MHz_18asec_2031-5249_11073_v1'),
         call.metadata_client.create(ANY),
@@ -559,7 +559,7 @@ def test_remote_execute_with_local_commands(
     test_config.task_types = [TaskType.STORE, TaskType.INGEST, TaskType.MODIFY]
     test_config.data_sources = [f'{test_data_dir}/rclone_test']
     test_config.data_source_extensions = ['.fits']
-    test_config.logging_level = 'INFO'
+    test_config.logging_level = 'ERROR'
     test_config.interval = 60 * 48  # work in time-boxes of 2 days => 60m * 48h
     test_config.observe_execution = True
     test_config.write_to_file(test_config)
@@ -581,15 +581,15 @@ def test_remote_execute_with_local_commands(
     assert clients_mock.return_value.data_client.put.call_count == 5, f'client mock {clients_mock.return_value.data_client.put.call_count}'
     assert clients_mock.return_value.metadata_client.read.call_count == 5, f'metadata client call count'
     assert clients_mock.return_value.metadata_client.update.call_count == 5, f'metadata client call count'
-    time_box_1 = '2024-04-20T16_33_00_2024-04-21T17_46_39_860112'
-    time_box_2 = '2024-04-16T16_33_00_2024-04-18T16_33_00'
+    time_box_3 = '2024-04-20T16_33_00_2024-04-22T16_33_00'
+    time_box_4 = '2024-04-28T16_33_00_2024-04-29T20_42_46'
     assert (
         clients_mock.return_value.data_client.put.mock_calls == [
-            call(f'{tmp_path}/{time_box_2}', 'cadc:POSSUM/POSSUM.band2.1506-32A_1506-32B.9488.i.fits'),
-            call(f'{tmp_path}/{time_box_2}', 'cadc:POSSUM/POSSUM.band1.0204-41.10187.i.fits'),
-            call(f'{tmp_path}/{time_box_2}', 'cadc:POSSUM/POSSUM.band1.0204-41.10187.u.fits'),
-            call(f'{tmp_path}/{time_box_2}', 'cadc:POSSUM/POSSUM.band1.0204-41.10187.q.fits'),
-            call(f'{tmp_path}/{time_box_1}', 'cadc:POSSUM/POSSUM.mfs.band1.2108+00A_2108+04B_2108+00B_2108+04A.5808.i.fits'),
+            call(f'{tmp_path}/{time_box_3}', 'cadc:POSSUM/POSSUM.mfs.band1.2108+00A_2108+04B_2108+00B_2108+04A.5808.i.fits'),
+            call(f'{tmp_path}/{time_box_4}', 'cadc:POSSUM/POSSUM.band1.0204-41.10187.i.fits'),
+            call(f'{tmp_path}/{time_box_4}', 'cadc:POSSUM/POSSUM.band1.0204-41.10187.u.fits'),
+            call(f'{tmp_path}/{time_box_4}', 'cadc:POSSUM/POSSUM.band2.1506-32A_1506-32B.9488.i.fits'),
+            call(f'{tmp_path}/{time_box_4}', 'cadc:POSSUM/POSSUM.band1.0204-41.10187.q.fits'),
         ]
     ), clients_mock.return_value.data_client.put.mock_calls
     assert (

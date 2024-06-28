@@ -66,8 +66,6 @@
 # ***********************************************************************
 #
 
-import logging
-
 from glob import glob
 from os.path import basename
 
@@ -83,7 +81,6 @@ def pytest_generate_tests(metafunc):
 
 
 def test_visit(test_name, test_data_dir):
-    logging.error(test_name)
     test_storage_name = PossumName(test_name)
     kwargs = {
         'storage_name': test_storage_name,
@@ -102,5 +99,4 @@ def test_visit(test_name, test_data_dir):
     else:
         test_energy = test_observation.planes['1d_pipeline'].energy
         # the em_band has a value!
-        assert test_energy is not None, f'do not expect energy {test_name}\n{test_energy}'
-        assert test_energy.bounds is None
+        assert test_energy is None, f'do not expect energy {test_name}\n{test_energy}'

@@ -483,7 +483,6 @@ class ExecutionUnit:
             self._local_metadata_reader,
             self._clients,
             self._observable,
-            self._reporter,
         )
         local_data_source = RemoteListDirDataSource(todo_config)
         local_data_source.reporter = self._reporter

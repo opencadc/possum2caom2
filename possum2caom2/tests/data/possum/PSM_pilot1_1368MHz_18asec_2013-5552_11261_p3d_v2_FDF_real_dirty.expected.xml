@@ -155,14 +155,13 @@
                             <caom2:val>0.0</caom2:val>
                           </caom2:coord2>
                         </caom2:refCoord>
-                        <caom2:cd11>-0.0009710633743375</caom2:cd11>
-                        <caom2:cd12>0.0</caom2:cd12>
-                        <caom2:cd21>0.0</caom2:cd21>
-                        <caom2:cd22>0.0009710633743375</caom2:cd22>
+                        <caom2:cd11>-0.00068664549695589</caom2:cd11>
+                        <caom2:cd12>-0.00068664549695589</caom2:cd12>
+                        <caom2:cd21>-0.00068664549695589</caom2:cd21>
+                        <caom2:cd22>0.000686645496955891</caom2:cd22>
                       </caom2:function>
                     </caom2:axis>
-                    <caom2:coordsys>FK5</caom2:coordsys>
-                    <caom2:equinox>2000.0</caom2:equinox>
+                    <caom2:coordsys>ICRS</caom2:coordsys>
                     <caom2:resolution>18.0</caom2:resolution>
                   </caom2:position>
                   <caom2:polarization>

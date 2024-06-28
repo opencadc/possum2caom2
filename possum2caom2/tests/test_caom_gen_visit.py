@@ -136,5 +136,5 @@ def test_main_app(header_mock, clients_mock, test_data_dir, test_config, test_na
                 raise AssertionError(msg)
         else:
             mc.write_obs_to_file(observation, actual_fqn)
-            assert False, f'nothing to compare to for {test_name}'
+            assert False, f'{expected_fqn} does not exist. Nothing to compare to for {test_name}'
     # assert False  # cause I want to see logging messages

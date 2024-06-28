@@ -80,9 +80,6 @@
         </caom2:bounds>
         <caom2:resolution>18.0</caom2:resolution>
       </caom2:position>
-      <caom2:energy/>
-      <caom2:time/>
-      <caom2:polarization/>
       <caom2:artifacts>
         <caom2:artifact caom2:id="bc155ce2-84cf-4410-ad85-8a4b1e9a5acc" caom2:metaProducer="test_possum/0.0.0">
           <caom2:uri>cadc:POSSUM/PSM_944MHz_18asec_2013-5553_11261_p1d_v1_FDFs.fits</caom2:uri>
